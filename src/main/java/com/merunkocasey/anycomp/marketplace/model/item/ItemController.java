@@ -2,14 +2,15 @@ package com.merunkocasey.anycomp.marketplace.model.item;
 
 import com.merunkocasey.anycomp.marketplace.dto.ItemRequest;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/items")
+@Tag(name = "Item API", description = "Endpoints for managing item.")
 public class ItemController {
 
     private final ItemService itemService;

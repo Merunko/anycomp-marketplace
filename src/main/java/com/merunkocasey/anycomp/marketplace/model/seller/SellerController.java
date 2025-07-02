@@ -4,6 +4,7 @@ import com.merunkocasey.anycomp.marketplace.dto.ItemRequest;
 import com.merunkocasey.anycomp.marketplace.dto.SellerRequest;
 import com.merunkocasey.anycomp.marketplace.model.item.Item;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,6 +12,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/sellers")
+@Tag(name = "Seller API", description = "Endpoints for managing seller and its items.")
 public class SellerController {
 
     private final SellerService sellerService;
