@@ -1,6 +1,7 @@
 package com.merunkocasey.anycomp.marketplace.model.item;
 
 import com.merunkocasey.anycomp.marketplace.dto.ItemRequest;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,18 +18,27 @@ public class ItemController {
         this.itemService = itemService;
     }
 
+    @Operation(
+            summary = "Get list of items in the market",
+            description = "Get list of items in the market from the system.")
     @GetMapping() // List all items
     public ResponseEntity<List<Item>> getAllItems() {
         List<Item> itemList = itemService.getAllItems();
         return ResponseEntity.ok().body(itemList);
     }
 
+    @Operation(
+            summary = "Get a specific item in the market by its ID",
+            description = "Get a specific item in the market by its ID in the system.")
     @GetMapping(path = "/{id}") // Get item by ID
     public ResponseEntity<Item> getItemById(@PathVariable Long id) {
         Item item = itemService.getItemById(id);
         return ResponseEntity.ok().body(item);
     }
 
+    @Operation(
+            summary = "Update a specific item in the market by its ID",
+            description = "Update a specific item in the market by its ID in the system.")
     @PutMapping(path = "/{id}") // Update item
     public ResponseEntity<Item> updateItemDetails(@PathVariable Long itemId, @RequestBody ItemRequest request) {
         Item newItemDetails = new Item(
@@ -42,6 +52,9 @@ public class ItemController {
         return ResponseEntity.ok().body(updatedItem);
     }
 
+    @Operation(
+            summary = "Delete item from the market",
+            description = "Delete item from the market.")
     @DeleteMapping(path = "/{id}") // Delete item
     public ResponseEntity<Void> deleteItem(@PathVariable Long itemId) {
         itemService.deleteItem(itemId);
