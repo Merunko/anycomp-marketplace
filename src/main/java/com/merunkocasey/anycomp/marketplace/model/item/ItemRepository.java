@@ -9,6 +9,7 @@ import java.util.List;
 public interface ItemRepository extends JpaRepository<Item, Long> {
 
     List<Item> findItemByName(String name);
+    Item findItemById(Long id);
 
     List<Item> findBySellerId(Long sellerId);
 
