@@ -1,13 +1,19 @@
 package com.merunkocasey.anycomp.marketplace.model.buyer;
 
+import com.merunkocasey.anycomp.marketplace.dto.BuyerResponse;
+import com.merunkocasey.anycomp.marketplace.dto.ItemResponse;
+import com.merunkocasey.anycomp.marketplace.dto.PurchaseResponse;
 import com.merunkocasey.anycomp.marketplace.model.item.Item;
 import com.merunkocasey.anycomp.marketplace.model.item.ItemRepository;
 import com.merunkocasey.anycomp.marketplace.model.purchase.Purchase;
 import com.merunkocasey.anycomp.marketplace.model.purchase.PurchaseRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class BuyerService {
@@ -22,11 +28,41 @@ public class BuyerService {
         this.itemRepository = itemRepository;
     }
 
-    public List<Buyer> getAllBuyers() {
-        return buyerRepository.findAll();
+    public Page<BuyerResponse> getAllBuyers(Pageable pageable) {
+        Page<Buyer> buyerPage = buyerRepository.findAll(pageable);
+        return buyerPage.map(this::mapToBuyerResponse);
     }
 
-    public Buyer getBuyerById(Long buyerId) {
+    private BuyerResponse mapToBuyerResponse(Buyer buyer) {
+        List<PurchaseResponse> purchaseResponses = buyer.getPurchasedItems().stream()
+                .map(this::mapToPurchaseResponse)
+                .collect(Collectors.toList());
+
+        return new BuyerResponse(
+                buyer.getId(),
+                buyer.getName(),
+                buyer.getEmail(),
+                purchaseResponses
+        );
+    }
+
+    private PurchaseResponse mapToPurchaseResponse(Purchase purchase) {
+        ItemResponse itemResponse = new ItemResponse(purchase.getItem().getId(), purchase.getItem().getName());
+        return new PurchaseResponse(
+                purchase.getId(),
+                purchase.getQuantity(),
+                purchase.getTotalCost(),
+                itemResponse
+        );
+    }
+
+    public BuyerResponse getBuyerByIdWithMapping(Long buyerId) {
+        Buyer buyer = buyerRepository.findById(buyerId)
+                .orElseThrow(() -> new IllegalArgumentException("Buyer not found with id: " + buyerId));
+        return mapToBuyerResponse(buyer);
+    }
+
+    private Buyer getBuyerById(Long buyerId) {
         return buyerRepository.findById(buyerId)
                 .orElseThrow(() -> new IllegalArgumentException("Buyer not found with id: " + buyerId));
     }
@@ -62,7 +98,7 @@ public class BuyerService {
 //    }
 
     @Transactional
-    public Purchase purchaseItem(Long buyerId, Long itemId, Integer quantity) {
+    public PurchaseResponse purchaseItem(Long buyerId, Long itemId, Integer quantity) {
         Buyer buyer = getBuyerById(buyerId);
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new IllegalArgumentException("Item not found with id: " + itemId));
@@ -76,7 +112,9 @@ public class BuyerService {
 
         double totalCost = quantity * item.getPrice();
         Purchase purchase = new Purchase(buyer, item, quantity, totalCost);
-        return purchaseRepository.save(purchase);
+        Purchase savedPurchase = purchaseRepository.save(purchase);
+
+        return mapToPurchaseResponse(savedPurchase);
     }
 
 }

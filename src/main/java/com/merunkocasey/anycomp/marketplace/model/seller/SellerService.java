@@ -1,12 +1,14 @@
 package com.merunkocasey.anycomp.marketplace.model.seller;
 
+import com.merunkocasey.anycomp.marketplace.dto.ItemRequest;
 import com.merunkocasey.anycomp.marketplace.model.item.Item;
 import com.merunkocasey.anycomp.marketplace.model.item.ItemRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Objects;
 
 @Service
 public class SellerService {
@@ -19,8 +21,8 @@ public class SellerService {
         this.itemRepository = itemRepository;
     }
 
-    public List<Seller> getAllSellers() {
-        return sellerRepository.findAll();
+    public Page<Seller> getAllSellers(Pageable pageable) {
+        return sellerRepository.findAll(pageable);
     }
 
     public Seller getSellerById(Long sellerId) {
@@ -60,44 +62,21 @@ public class SellerService {
         if (!sellerRepository.existsById(sellerId)) {
             throw new IllegalArgumentException("Seller not found with id: " + sellerId);
         }
-        return itemRepository.findBySellerId(sellerId);
+        return itemRepository.findBySeller_Id(sellerId);
     }
 
     @Transactional
-    public Item addItemToMarket(Long sellerId, Item item) {
+    public Item addItemToMarket(Long sellerId, ItemRequest request) {
         Seller seller = getSellerById(sellerId);
-        item.setSeller(seller);
-        return itemRepository.save(item);
-    }
 
-    @Transactional
-    public Item updateItemDetails(Long sellerId, Long itemId, Item itemDetails) {
-        Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> new IllegalArgumentException("Item not found with id: " + itemId));
+        Item newItem = new Item();
+        newItem.setName(request.name());
+        newItem.setDescription(request.description());
+        newItem.setPrice(request.price());
+        newItem.setQuantity(request.quantity());
+        newItem.setSeller(seller);
 
-        if (!Objects.equals(item.getSeller().getId(), sellerId)) {
-            throw new IllegalArgumentException("This item does not belong to seller with id: " + sellerId);
-        }
-
-        item.setName(itemDetails.getName());
-        item.setDescription(itemDetails.getDescription());
-        item.setPrice(itemDetails.getPrice());
-        item.setQuantity(itemDetails.getQuantity());
-
-        return itemRepository.save(item);
-    }
-
-    @Transactional
-    public void removeItemFromMarket(Long sellerId, Long itemId) {
-        Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> new IllegalArgumentException("Item not found with id: " + itemId));
-
-
-        if (!Objects.equals(item.getSeller().getId(), sellerId)) {
-            throw new IllegalArgumentException("This item does not belong to seller with id: " + sellerId);
-        }
-
-        itemRepository.deleteById(itemId);
+        return itemRepository.save(newItem);
     }
 
 }

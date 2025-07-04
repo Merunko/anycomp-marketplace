@@ -1,7 +1,10 @@
 package com.merunkocasey.anycomp.marketplace.model.item;
 
+import com.merunkocasey.anycomp.marketplace.dto.ItemRequest;
 import com.merunkocasey.anycomp.marketplace.model.seller.Seller;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,8 +20,8 @@ public class ItemService {
         this.itemRepository = itemRepository;
     }
 
-    public List<Item> getAllItems() {
-        return itemRepository.findAll();
+    public Page<Item> getAllItems(Pageable pageable) {
+        return itemRepository.findAll(pageable);
     }
 
     public Item getItemById(Long itemId) {
@@ -37,6 +40,20 @@ public class ItemService {
         item.setQuantity(itemDetails.getQuantity());
 
         return itemRepository.save(item);
+    }
+
+    @Transactional
+    public Item updateItemDetails(Long itemId, ItemRequest request) {
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new IllegalArgumentException("Item not found with id: " + itemId));
+
+        item.setName(request.name());
+        item.setDescription(request.description());
+        item.setPrice(request.price());
+        item.setQuantity(request.quantity());
+
+        return itemRepository.save(item);
+
     }
 
     @Transactional

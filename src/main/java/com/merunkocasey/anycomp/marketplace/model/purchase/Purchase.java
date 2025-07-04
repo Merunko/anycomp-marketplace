@@ -1,5 +1,6 @@
 package com.merunkocasey.anycomp.marketplace.model.purchase;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.merunkocasey.anycomp.marketplace.model.buyer.Buyer;
 import com.merunkocasey.anycomp.marketplace.model.item.Item;
 
@@ -17,6 +18,7 @@ public class Purchase {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "buyer_id", nullable = false)
+    @JsonBackReference
     private Buyer buyer;
 
     @ManyToOne(fetch = FetchType.LAZY)

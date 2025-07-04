@@ -5,6 +5,8 @@ import com.merunkocasey.anycomp.marketplace.dto.SellerRequest;
 import com.merunkocasey.anycomp.marketplace.model.item.Item;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,8 +27,8 @@ public class SellerController {
             summary = "Get list of sellers",
             description = "Get list of sellers from the system.")
     @GetMapping // List all sellers
-    public ResponseEntity<List<Seller>> getAllSellers() {
-        List<Seller> sellers = sellerService.getAllSellers();
+    public ResponseEntity<Page<Seller>> getAllSellers(Pageable pageable) {
+        Page<Seller> sellers = sellerService.getAllSellers(pageable);
         return ResponseEntity.ok(sellers);
     }
 
@@ -82,38 +84,8 @@ public class SellerController {
             description = "Add new item to the market for a specific seller in the system.")
     @PostMapping("/{sellerId}/items") // Add new item to seller
     public ResponseEntity<Item> addItemToMarket(@PathVariable Long sellerId, @RequestBody ItemRequest request) {
-        Item newItem = new Item(
-                sellerId,
-                request.name(),
-                request.description(),
-                request.price(),
-                request.quantity());
-
-        Item addedItem = sellerService.addItemToMarket(sellerId, newItem);
+        Item addedItem = sellerService.addItemToMarket(sellerId, request);
         return ResponseEntity.status(201).body(addedItem);
     }
-
-    /*
-    @PutMapping("/{sellerId}/items/{itemId}")
-    public ResponseEntity<Item> updateItemDetails(@PathVariable Long sellerId, @PathVariable Long itemId, @RequestBody ItemRequest request) {
-        Item newItemDetails = new Item(
-                itemId,
-                request.name(),
-                request.description(),
-                request.price(),
-                request.quantity());
-
-        Item updatedItem = sellerService.updateItemDetails(sellerId, itemId, newItemDetails);
-        return ResponseEntity.ok().body(updatedItem);
-    }
-     */
-
-    /*
-    @DeleteMapping("/{sellerId}/items/{itemId}")
-    public ResponseEntity<Void> removeItemFromMarket(@PathVariable Long sellerId, @PathVariable Long itemId) {
-        sellerService.removeItemFromMarket(sellerId, itemId);
-        return ResponseEntity.noContent().build();
-    }
-     */
 
 }

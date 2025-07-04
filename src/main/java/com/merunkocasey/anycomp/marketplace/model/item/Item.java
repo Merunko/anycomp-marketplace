@@ -1,6 +1,7 @@
 package com.merunkocasey.anycomp.marketplace.model.item;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.merunkocasey.anycomp.marketplace.model.seller.Seller;
 import jakarta.persistence.*;
 
@@ -38,6 +39,12 @@ public class Item {
         this.description = description;
         this.price = price;
         this.quantity = quantity;
+    }
+
+    @Transient
+    @JsonProperty("sellerId")
+    public Long getSellerId() {
+        return (seller != null) ? seller.getId() : null;
     }
 
     public Long getId() {

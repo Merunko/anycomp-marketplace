@@ -3,6 +3,9 @@ package com.merunkocasey.anycomp.marketplace.model.item;
 import com.merunkocasey.anycomp.marketplace.dto.ItemRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,8 +26,8 @@ public class ItemController {
             summary = "Get list of items in the market",
             description = "Get list of items in the market from the system.")
     @GetMapping() // List all items
-    public ResponseEntity<List<Item>> getAllItems() {
-        List<Item> itemList = itemService.getAllItems();
+    public ResponseEntity<Page<Item>> getAllItems(Pageable pageable) {
+        Page<Item> itemList = itemService.getAllItems(pageable);
         return ResponseEntity.ok().body(itemList);
     }
 
@@ -40,24 +43,17 @@ public class ItemController {
     @Operation(
             summary = "Update a specific item in the market by its ID",
             description = "Update a specific item in the market by its ID in the system.")
-    @PutMapping(path = "/{id}") // Update item
-    public ResponseEntity<Item> updateItemDetails(@PathVariable Long itemId, @RequestBody ItemRequest request) {
-        Item newItemDetails = new Item(
-                itemId,
-                request.name(),
-                request.description(),
-                request.price(),
-                request.quantity());
-
-        Item updatedItem = itemService.updateItemDetails(itemId, newItemDetails);
-        return ResponseEntity.ok().body(updatedItem);
+    @PutMapping(path = "/{id}")
+    public ResponseEntity<Item> updateItemDetails(@PathVariable("id") Long itemId, @RequestBody ItemRequest request) {
+        Item updatedItem = itemService.updateItemDetails(itemId, request);
+        return ResponseEntity.ok(updatedItem);
     }
 
     @Operation(
             summary = "Delete item from the market",
             description = "Delete item from the market.")
     @DeleteMapping(path = "/{id}") // Delete item
-    public ResponseEntity<Void> deleteItem(@PathVariable Long itemId) {
+    public ResponseEntity<Void> deleteItem(@PathVariable("id") Long itemId) {
         itemService.deleteItem(itemId);
         return ResponseEntity.noContent().build();
     }

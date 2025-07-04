@@ -1,14 +1,15 @@
 package com.merunkocasey.anycomp.marketplace.model.buyer;
 
-import com.merunkocasey.anycomp.marketplace.model.purchase.Purchase;
+import com.merunkocasey.anycomp.marketplace.dto.BuyerResponse;
+import com.merunkocasey.anycomp.marketplace.dto.PurchaseResponse;
 import com.merunkocasey.anycomp.marketplace.dto.BuyerRequest;
 import com.merunkocasey.anycomp.marketplace.dto.PurchaseRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/buyers")
@@ -25,8 +26,8 @@ public class BuyerController {
             summary = "Get list of buyers",
             description = "Get list of buyers from the system.")
     @GetMapping // List all buyers
-    public ResponseEntity<List<Buyer>> getAllBuyers() {
-        List<Buyer> buyers = buyerService.getAllBuyers();
+    public ResponseEntity<Page<BuyerResponse>> getAllBuyers(Pageable pageable) {
+        Page<BuyerResponse> buyers = buyerService.getAllBuyers(pageable);
         return ResponseEntity.ok(buyers);
     }
 
@@ -34,8 +35,8 @@ public class BuyerController {
             summary = "Get a specific buyer",
             description = "Get a specific buyer by its ID from the system.")
     @GetMapping("/{id}") // Get a specific buyer
-    public ResponseEntity<Buyer> getBuyerById(@PathVariable Long id) {
-        Buyer buyer = buyerService.getBuyerById(id);
+    public ResponseEntity<BuyerResponse> getBuyerById(@PathVariable Long id) {
+        BuyerResponse buyer = buyerService.getBuyerByIdWithMapping(id);
         return ResponseEntity.ok(buyer);
     }
 
@@ -71,10 +72,10 @@ public class BuyerController {
     @Operation(
             summary = "Purchase item for buyer",
             description = "Purchase item from seller. This will check item availability, deduct bought quantity from the available stock, and create a new purchase entry")
-    @PostMapping("/purchase")
-    public ResponseEntity<Purchase> purchaseItem(@RequestBody PurchaseRequest request) {
-        Purchase purchase = buyerService.purchaseItem(
-                request.buyerId(),
+    @PostMapping("/{id}/purchase")
+    public ResponseEntity<PurchaseResponse> purchaseItem(@PathVariable Long id, @RequestBody PurchaseRequest request) {
+        PurchaseResponse purchase = buyerService.purchaseItem(
+                id,
                 request.itemId(),
                 request.quantity()
         );

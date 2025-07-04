@@ -1,5 +1,6 @@
 package com.merunkocasey.anycomp.marketplace.model.buyer;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.merunkocasey.anycomp.marketplace.model.purchase.Purchase;
 import jakarta.persistence.*;
 
@@ -19,6 +20,7 @@ public class Buyer {
     @Column(nullable = false, unique = true)
     private String email;
 
+    @JsonManagedReference
     @OneToMany(mappedBy = "buyer", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Purchase> purchasedItems;
 
